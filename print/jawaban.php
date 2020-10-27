@@ -23,6 +23,7 @@ try {
     $html2pdf->writeHTML($content);
     // $html2pdf->output("MERP2020_".$kode.".pdf","D");
     $html2pdf->output();
+    // print_r($data);
 } catch (Html2PdfException $e) {
     $html2pdf->clean();
 

@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
-$username = "pertamin_koneksi";
-$password = "mataSerius17001$";
+$username = "root";
+$password = "qlue12345";
 $dbname = "pertamin_survey";
 
 // Create connection

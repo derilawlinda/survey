@@ -4,11 +4,37 @@ $kode   = $_GET['id']; //kode berita yang akan dikonvert
 $sql = "SELECT * FROM srvy_survey_202006 WHERE id=$kode";
 $query = $conn->query($sql);
 $data   = mysqli_fetch_array($query);
-
 function json_decode_multi($txt, $assoc = false, $depth = 512, $options = 0) {
-    if(substr($s, -1) == ',')
-        $s = substr($s, 0, -1);
+    if(substr($txt, -1) == ',')
+        $txt = substr($s, 0, -1);
     return json_decode("[$txt]", $assoc, $depth, $options);
+}
+
+function generate_file_links($file_link_json=null,$tindak_lanjut=null){
+    $file_links = "";
+    if($file_link_json != null){
+        $replacements = [
+            "[" => "",
+            "]" => "",
+        ];
+        $tks = strtr($file_link_json, $replacements);
+        $obj = json_decode($tks,true);
+        $arr = json_decode_multi($file_link_json);
+        for ($x = 0; $x < count($arr[0]); $x++) {
+            $file_links .= ($x+1)."."." <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$arr[0][$x]->filename."'>".$arr[0][$x]->title.".".$arr[0][$x]->ext."</a><br>";
+        }
+    }
+    if($tindak_lanjut != null){
+        $file_links .= $tindak_lanjut;
+    }
+
+    if($file_link_json == null && $tindak_lanjut == null){
+        return "-";
+    }else {
+        return $file_links;
+    }
+    
+    
 }
 //-------Soal 1-----------
 if($data['202006X97X2735'] == 1){
@@ -16,33 +42,13 @@ if($data['202006X97X2735'] == 1){
 }else{
     $j1 = "Belum tersedia manajemen tanggap darurat medis";
 }
+$tl1 = generate_file_links($data['202006X97X2736'],$data['202006X97X2737']);
+
 if($data['202006X97X2736'] != null){
     $txt = $data['202006X97X2736'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-	$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-        $tl1 = $file1.$file2.$file3;
-    }
-    // $tl1 = "<a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$obj["filename"]."'>".$obj["ext"]."</a>";
-}elseif($data['202006X97X2737'] != null){
-    $tl1 = $data['202006X97X2737'];
-}else{
-    $tl1 = "-";
+    $tl1 = generate_file_links($txt);
 }
+
 
 if($data['202006X97X2861'] != null){
     $rcn1 = date('d/m/Y',strtotime($data['202006X97X2861']));
@@ -56,6 +62,7 @@ if($data['202006X97X2860'] != null){
 }
 
 //-------Soal 2-----------
+$tl2 = "";
 if($data['202006X98X2738'] == 3){
      $j2 = "Prosedur tanggap darurat medis tersedia dan sesuai dengan tingkat risiko serta sesuai dengan regulasi";
 }
@@ -67,57 +74,9 @@ elseif($data['202006X98X2738'] == 1){
 }else{
     $j2 = "Prosedur tanggap darurat medis belum tersedia";
 }
-if($data['202006X98X2740'] != null && $data['202006X98X2741'] != null){
-    $txt = $data['202006X98X2740'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-	$obj = json_decode($tks);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-        $tl2 = $file1.$file2.$file3.$data['202006X98X2741'];
-    }
-// 	$tl2 = print_r($arr[0]->filename);
-    // $tl2 = "<a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$obj["filename"]."'>".$obj["ext"]."</a><br>".$data['202006X98X2741'];
-}
-elseif($data['202006X98X2740'] != null){
-    $txt = $data['202006X98X2740'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-	$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-        $tl2 = $file1.$file2.$file3;
-    }
-    // $tl2 = "<a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$obj["filename"]."'>".$obj["ext"]."</a>";
-}elseif($data['202006X98X2741'] != null){
-    $tl2 = $data['202006X98X2741'];
-}else{
-    $tl2 = "-";
-}
+
+$tl2 = generate_file_links($data['202006X98X2740'],$data['202006X98X2741']);
+
 
 if($data['202006X98X2889'] != null){
     $rcn2 = date('d/m/Y',strtotime($data['202006X98X2889']));
@@ -131,38 +90,16 @@ if($data['202006X98X2862'] != null){
 }
 
 //-------Soal 3-----------
+
 if($data['202006X99X2742'] == 1){
     $j3 = "Tersedia rencana tanggap darurat medis yang terintegrasi ke dalam prosedur tanggap darurat (Emergency Respon/ERP)";
 }else{
     $j3 = "Belum tersedia manajemen tanggap darurat medis yang terintegrasi ke dalam prosedur tanggap darurat (Emergency Respon/ERP)";
 }
-if($data['202006X99X2743'] != null){
-    $tl3 = $data['202006X99X2743'];
-}elseif($data['202006X99X2744'] != null){
-    $txt = $data['202006X99X2744'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-	$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-        $tl3 = $file1.$file2.$file3;
-    }
-    // $tl3 = "<a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$obj["filename"]."'>".$obj["ext"]."</a>";
-}else{
-    $tl3 = "-";
-}
+
+$tl3 = generate_file_links($data['202006X99X2744'],$data['202006X99X2743']);
+
+
 if($data['202006X99X2890'] != null){
     $rcn3 = date('d/m/Y',strtotime($data['202006X99X2890']));
 }else{
@@ -187,38 +124,9 @@ elseif($data['202006X100X2745'] == 1){
     $j4 = "Terdapat rencana tanggap darurat medis (MERP) namun belum dikomunikasikan kepada seluruh stakeholder";
 }
 
-    $txt = $data['202006X100X2747'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-	$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-	
-if($data['202006X100X2746'] != null && $data['202006X100X2747'] != null){
-    $tl4 = $file1.$file2.$file3.$data['202006X100X2746'];
-}
-elseif($data['202006X100X2746'] != null){
-    $tl4 = $data['202006X100X2746'];
-}elseif($data['202006X100X2747'] != null){
-    $tl4 = $file1.$file2.$file3;
-}else{
-    $tl4 = "-";
-}
+
+$tl4 = generate_file_links($data['202006X100X2747'],$data['202006X100X2746']);
+
 if($data['202006X100X2865'] != null){
     $pic4 = $data['202006X100X2865'];
 }else{
@@ -231,6 +139,7 @@ if($data['202006X100X2891'] != null){
 }
 
 //-------Soal 5-----------
+$tl5 = "";
 if($data['202006X101X2748'] != null){
     if($data['202006X101X2748'] == 4){
         $j5 = "Simulasi tanggap darurat medis (MERP) telah dilakukan sesuai dengan jumlah skenario";
@@ -247,38 +156,8 @@ if($data['202006X101X2748'] != null){
         $j5 = "Simulasi tanggap darurat medis (MERP)  tidak dilakukan";
     }
     
-    $txt = $data['202006X101X2750'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-	$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-	
-    if($data['202006X101X2749'] != null && $data['202006X101X2750'] != null){
-        $tl5 = $file1.$file2.$file3.$data['202006X101X2750'];
-    }
-    elseif($data['202006X101X2749'] != null){
-        $tl5 = $data['202006X101X2749'];
-    }elseif($data['202006X101X2750'] != null){
-        $tl5 = $file1.$file2.$file3;
-    }else{
-        $tl5 = "-";
-    }
+    $tl5 = generate_file_links($data['202006X101X2750'],$data['202006X101X2749']);
+   
     if($data['202006X101X2866'] != null){
         $pic5 = $data['202006X101X2866'];
     }else{
@@ -304,38 +183,9 @@ if($data['202006X101X2748'] != null){
     }else{
         $j5 = "Simulasi tanggap darurat medis (MERP)  tidak dilakukan";
     }
-    $txt = $data['202006X123X2847'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-	$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-	
-    if($data['202006X123X2846'] != null && $data['202006X123X2847'] != null){
-        $tl5 = $file1.$file2.$file3.$data['202006X123X2846'];
-    }
-    elseif($data['202006X123X2846'] != null){
-        $tl5 = $data['202006X123X2846'];
-    }elseif($data['202006X123X2847'] != null){
-        $tl5 = $file1.$file2.$file3;
-    }else{
-        $tl5 = "-";
-    }
+
+    $tl5 = generate_file_links($data['202006X123X2847'],$data['202006X123X2846']);
+
     if($data['202006X123X2867'] != null){
         $pic5 = $data['202006X123X2867'];
     }else{
@@ -363,38 +213,9 @@ elseif($data['202006X102X2751'] == 1){
 }else{
     $j6 = "Tidak terdapat proses untuk memastikan bahwa pelajaran (lesson learned) ditindaklanjuti";
 }
-$txt = $data['202006X102X2753'];//File
-$replacements = [
-    "[" => "",
-    "]" => "",
-];
-$tks = strtr($txt, $replacements);
-$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
+    
+$tl6 = generate_file_links($data['202006X102X2753'],$data['202006X102X2752']);
 
-if($data['202006X102X2752'] != null && $data['202006X102X2753'] != null){
-    $tl6 = $file1.$file2.$file3.$data['202006X102X2752'];
-}
-elseif($data['202006X102X2752'] != null){
-    $tl6 = $data['202006X102X2752'];
-}elseif($data['202006X102X2753'] != null){
-    $tl6 = $file1.$file2.$file3;
-}else{
-    $tl6 = "-";
-}
 if($data['202006X102X2868'] != null){
     $pic6 = $data['202006X102X2868'];
 }else{
@@ -416,38 +237,8 @@ elseif($data['202006X103X2754'] == 1){
     $j7 = "Waktu respon yang diperlukan tidak ditetapkan baik untuk MERP1, MERP2 dan MERP3";
 }
 
-$txt = $data['202006X103X2756'];//File
-$replacements = [
-    "[" => "",
-    "]" => "",
-];
-$tks = strtr($txt, $replacements);
-$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
+$tl7 = generate_file_links($data['202006X124X2856'],$data['202006X124X2855']);
 
-if($data['202006X103X2755'] != null && $data['202006X103X2756'] != null){
-    $tl7 = $file1.$file2.$file3.$data['202006X103X2755'];
-}
-elseif($data['202006X103X2755'] != null){
-    $tl7 = $data['202006X103X2755'];
-}elseif($data['202006X103X2756'] != null){
-    $tl7 = $file1.$file2.$file3;
-}else{
-    $tl7 = "-";
-}
 if($data['202006X103X2869'] != null){
     $pic7 = $data['202006X103X2869'];
 }else{
@@ -469,39 +260,8 @@ elseif($data['202006X104X2757'] == 1){
     $j8 = "Tidak terdapat prosedur";
 }
 
-$txt = $data['202006X104X2759'];//File
-$replacements = [
-    "[" => "",
-    "]" => "",
-];
-$tks = strtr($txt, $replacements);
-$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
+$tl8 = generate_file_links($data['202006X104X2759'],$data['202006X104X2758']);
 
-if($data['202006X104X2758'] != null && $data['202006X104X2759'] != null){
-    $tl8 = $file1.$file2.$file3.$data['202006X104X2758'];
-}
-elseif($data['202006X104X2758'] != null){
-    $tl8 = $data['202006X104X2758'];
-}elseif($data['202006X104X2759'] != null){
-    $tl8 = $file1.$file2.$file3;
-    
-}else{
-    $tl8 = "-";
-}
 if($data['202006X104X2870'] != null){
     $pic8 = $data['202006X104X2870'];
 }else{
@@ -523,39 +283,8 @@ elseif($data['202006X105X2760'] == 1){
     $j9 = "Tidak terdapat nomor kontak darurat ";
 }
 
-$txt = $data['202006X105X2762'];//File
-$replacements = [
-    "[" => "",
-    "]" => "",
-];
-$tks = strtr($txt, $replacements);
-$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
+$tl9 = generate_file_links($data['202006X105X2762'],$data['202006X105X2761']);
 
-if($data['202006X105X2761'] != null && $data['202006X105X2762'] != null){
-    $tl9 = $file1.$file2.$file3.$data['202006X105X2761'];
-}
-elseif($data['202006X105X2761'] != null){
-    $tl9 = $data['202006X105X2761'];
-}elseif($data['202006X105X2762'] != null){
-    $tl9 = $file1.$file2.$file3;
-    
-}else{
-    $tl9 = "-";
-}
 if($data['202006X105X2871'] != null){
     $pic9 = $data['202006X105X2871'];
 }else{
@@ -574,39 +303,8 @@ if($data['202006X106X2763'] == 1){
     $j10 = "Tidak terdapat prosedur pelatihan Pertolongan Pertama Pada Kecelakaan/P3K dengan pelatihan dilaksanakan secara berkalamemenuhi standar";
 }
 
-$txt = $data['202006X106X2765'];//File
-$replacements = [
-    "[" => "",
-    "]" => "",
-];
-$tks = strtr($txt, $replacements);
-$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
+$tl10 = generate_file_links($data['202006X106X2765'],$data['202006X106X2764']);
 
-if($data['202006X106X2764'] != null && $data['202006X106X2765'] != null){
-    $tl10 = $file1.$file2.$file3.$data['202006X106X2764'];
-}
-elseif($data['202006X106X2764'] != null){
-    $tl10 = $data['202006X106X2764'];
-}elseif($data['202006X106X2765'] != null){
-    $tl10 = $file1.$file2.$file3;
-    
-}else{
-    $tl10 = "-";
-}
 if($data['202006X106X2872'] != null){
     $pic10 = $data['202006X106X2872'];
 }else{
@@ -625,39 +323,8 @@ if($data['202006X107X2766'] == 1){
     $j11 = "Tidak terdapat prosedur untuk memastikan klinik, sarana, ambulan, isi dari kotak P3K tersebut telah sesuai dengan standar yang berlaku dan terpelihara dengan baik";
 }
 
-$txt = $data['202006X107X2768'];//File
-$replacements = [
-    "[" => "",
-    "]" => "",
-];
-$tks = strtr($txt, $replacements);
-$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
+$tl11 = generate_file_links($data['202006X107X2768'],$data['202006X107X2767']);
 
-if($data['202006X107X2767'] != null && $data['202006X107X2768'] != null){
-    $tl11 = $file1.$file2.$file3.$data['202006X107X2767'];
-}
-elseif($data['202006X107X2767'] != null){
-    $tl11 = $data['202006X107X2767'];
-}elseif($data['202006X107X2768'] != null){
-    $tl11 = $file1.$file2.$file3;
-
-}else{
-    $tl11 = "-";
-}
 if($data['202006X107X2873'] != null){
     $pic11 = $data['202006X107X2873'];
 }else{
@@ -676,39 +343,8 @@ if($data['202006X108X2769'] == 1){
     $j12 = "Tidak tterdapat prosedur untuk memastikan sarana dan peralatan tanggap darurat medis diperiksa dan dipelihara secara berkala";
 }
 
-$txt = $data['202006X108X2771'];//File
-$replacements = [
-    "[" => "",
-    "]" => "",
-];
-$tks = strtr($txt, $replacements);
-$obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
+$tl12 = generate_file_links($data['202006X108X2771'],$data['202006X108X2770']);
 
-if($data['202006X108X2770'] != null && $data['202006X108X2771'] != null){
-    $tl12 = $file1.$file2.$file3.$data['202006X108X2770'];
-}
-elseif($data['202006X108X2770'] != null){
-    $tl12 = $data['202006X108X2770'];
-}elseif($data['202006X108X2771'] != null){
-    $tl12 = $file1.$file2.$file3;
-
-}else{
-    $tl12 = "-";
-}
 if($data['202006X108X2874'] != null){
     $pic12 = $data['202006X108X2874'];
 }else{
@@ -727,40 +363,9 @@ if($data['202006X109X2772'] != null){
     }else{
         $j13 = "Tidak terdapat prosedur untuk meminta bantuan organisasi eksternal dalam menangani keadaan darurat";
     }
-    
-    $txt = $data['202006X109X2774'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X109X2773'] != null && $data['202006X109X2774'] != null){
-        $tl13 = $file1.$file2.$file3.$data['202006X109X2773'];
-    }
-    elseif($data['202006X109X2773'] != null){
-        $tl13 = $data['202006X109X2773'];
-    }elseif($data['202006X109X2774'] != null){
-        $tl13 = $file1.$file2.$file3;
 
-    }else{
-        $tl13 = "-";
-    }
+    $tl13 = generate_file_links($data['202006X109X2774'],$data['202006X109X2773']);
+
     if($data['202006X109X2875'] != null){
         $pic13 = $data['202006X109X2875'];
     }else{
@@ -777,40 +382,9 @@ if($data['202006X109X2772'] != null){
     }else{
         $j13 = "Tidak terdapat prosedur untuk meminta bantuan organisasi eksternal dalam menangani keadaan darurat";
     }
-    
-    $txt = $data['202006X109X2774'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X109X2773'] != null && $data['202006X109X2774'] != null){
-        $tl13 = $file1.$file2.$file3.$data['202006X109X2773'];
-    }
-    elseif($data['202006X109X2773'] != null){
-        $tl13 = $data['202006X109X2773'];
-    }elseif($data['202006X109X2774'] != null){
-        $tl13 = $file1.$file2.$file3;
 
-    }else{
-        $tl13 = "-";
-    }
+    $tl13 = generate_file_links($data['202006X109X2774'],$data['202006X109X2773']);
+
     if($data['202006X109X2875'] != null){
         $pic13 = $data['202006X109X2875'];
     }else{
@@ -830,39 +404,8 @@ if($data['202006X110X2775'] == 1){
     $j14 = "Tidak terdapat perjanjian kerjasama dengan organisasi lain/eksternal untuk memberikan bantuan personil dan peralatan jika terjadi keadaan darurat";
 }
 
-    $txt = $data['202006X110X2777'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X110X2776'] != null && $data['202006X110X2777'] != null){
-        $tl14 = $file1.$file2.$file3.$data['202006X110X2776'];
-    }
-    elseif($data['202006X110X2776'] != null){
-        $tl14 = $data['202006X110X2776'];
-    }elseif($data['202006X110X2777'] != null){
-        $tl14 = $file1.$file2.$file3;
+$tl14 = generate_file_links($data['202006X110X2777'],$data['202006X110X2776']);
 
-}else{
-    $tl14 = "-";
-}
 if($data['202006X110X2876'] != null){
     $pic14 = $data['202006X110X2876'];
 }else{
@@ -887,39 +430,8 @@ if($data['202006X111X2778'] == 4){
     $j15 = "Simulasi/drill MERP tidak dilakukan";
 }
 
-    $txt = $data['202006X111X2780'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X111X2779'] != null && $data['202006X111X2780'] != null){
-        $tl15 = $file1.$file2.$file3.$data['202006X111X2779'];
-    }
-    elseif($data['202006X111X2779'] != null){
-        $tl15 = $data['202006X111X2779'];
-    }elseif($data['202006X111X2780'] != null){
-        $tl15 = $file1.$file2.$file3;
+$tl15 = generate_file_links($data['202006X111X2780'],$data['202006X111X2779']);
 
-}else{
-    $tl15 = "-";
-}
 if($data['202006X111X2877'] != null){
     $pic15 = $data['202006X111X2877'];
 }else{
@@ -944,40 +456,9 @@ if($data['202006X112X2781'] != null){
     }else{
         $j16 = "Simulasi/drill MERP tidak dilakukan";
     }
-    
-    $txt = $data['202006X112X2783'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X112X2782'] != null && $data['202006X112X2783'] != null){
-        $tl16 = $file1.$file2.$file3.$data['202006X112X2782'];
-    }
-    elseif($data['202006X112X2782'] != null){
-        $tl16 = $data['202006X112X2782'];
-    }elseif($data['202006X112X2783'] != null){
-        $tl16 = $file1.$file2.$file3;
 
-    }else{
-        $tl16 = "-";
-    }
+    $tl16 = generate_file_links($data['202006X112X2783'],$data['202006X112X2782']);
+
     if($data['202006X112X2878'] != null){
         $pic16 = $data['202006X112X2878'];
     }else{
@@ -1000,39 +481,9 @@ if($data['202006X112X2781'] != null){
     }else{
         $j16 = "Simulasi/drill MERP tidak dilakukan";
     }
-    $txt = $data['202006X112X2783'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X112X2782'] != null && $data['202006X112X2783'] != null){
-        $tl16 = $file1.$file2.$file3.$data['202006X112X2782'];
-    }
-    elseif($data['202006X112X2782'] != null){
-        $tl16 = $data['202006X112X2782'];
-    }elseif($data['202006X112X2783'] != null){
-        $tl16 = $file1.$file2.$file3;
 
-    }else{
-        $tl16 = "-";
-    }
+    $tl16 = generate_file_links($data['202006X112X2783'],$data['202006X112X2782']);
+
     if($data['202006X112X2878'] != null){
         $pic16 = $data['202006X112X2878'];
     }else{
@@ -1056,39 +507,8 @@ if($data['202006X113X2784'] == 3){
     $j17 = "Tidak terdapat FA";
 } 
 
-    $txt = $data['202006X113X2786'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X113X2785'] != null && $data['202006X113X2786'] != null){
-        $tl17 = $file1.$file2.$file3.$data['202006X113X2785'];
-    }
-    elseif($data['202006X113X2785'] != null){
-        $tl17 = $data['202006X113X2785'];
-    }elseif($data['202006X113X2786'] != null){
-        $tl17 = $file1.$file2.$file3;
+$tl17 = generate_file_links($data['202006X113X2786'],$data['202006X113X2785']);
 
-}else{
-    $tl17 = "-";
-}
 if($data['202006X113X2879'] != null){
     $pic17 = $data['202006X113X2879'];
 }else{
@@ -1107,39 +527,7 @@ if($data['202006X114X2787'] == 1){
     $j18 = "Tidak terdapat dokter dan paramedis untuk melakukan perawatan medis darurat";
 }
 
-    $txt = $data['202006X114X2789'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X114X2788'] != null && $data['202006X114X2789'] != null){
-        $tl18 = $file1.$file2.$file3.$data['202006X114X2788'];
-    }
-    elseif($data['202006X114X2788'] != null){
-        $tl18 = $data['202006X114X2788'];
-    }elseif($data['202006X114X2789'] != null){
-        $tl18 = $file1.$file2.$file3;
-
-}else{
-    $tl18 = "-";
-}
+$tl18 = generate_file_links($data['202006X114X2789'],$data['202006X114X2788']);
 if($data['202006X114X2880'] != null){
     $pic18 = $data['202006X114X2880'];
 }else{
@@ -1161,39 +549,8 @@ elseif($data['202006X115X2790'] == 1){
     $j19 = "Hanya terdapat FA";
 }
 
-    $txt = $data['202006X115X2792'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X115X2791'] != null && $data['202006X115X2792'] != null){
-        $tl19 = $file1.$file2.$file3.$data['202006X115X2791'];
-    }
-    elseif($data['202006X115X2791'] != null){
-        $tl19 = $data['202006X115X2791'];
-    }elseif($data['202006X115X2792'] != null){
-        $tl19 = $file1.$file2.$file3;
+$tl19 = generate_file_links($data['202006X115X2792'],$data['202006X115X2791']);
 
-}else{
-    $tl19 = "-";
-}
 if($data['202006X115X2881'] != null){
     $pic19 = $data['202006X115X2881'];
 }else{
@@ -1212,39 +569,9 @@ if($data['202006X116X2793'] == 1){
     $j20 = "Tidak terdapat pekerja yang ditunjuk untuk memelihara dan memastikan semua sarana (termasuk AED), isi kotak P3K terpelihara sepanjang waktu";
 }
 
-    $txt = $data['202006X116X2795'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X116X2794'] != null && $data['202006X116X2795'] != null){
-        $tl20 = $file1.$file2.$file3.$data['202006X116X2794'];
-    }
-    elseif($data['202006X116X2794'] != null){
-        $tl20 = $data['202006X116X2794'];
-    }elseif($data['202006X116X2795'] != null){
-        $tl20 = $file1.$file2.$file3;
+  
+$tl20 = generate_file_links($data['202006X116X2795'],$data['202006X116X2794']);
 
-}else{
-    $tl20 = "-";
-}
 if($data['202006X116X2882'] != null){
     $pic20 = $data['202006X116X2882'];
 }else{
@@ -1269,39 +596,8 @@ elseif($data['202006X117X2796'] == 1){
     $j21 = "Tidak terdapat klinik dan sarananya";
 } 
 
-    $txt = $data['202006X117X2798'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X117X2797'] != null && $data['202006X117X2798'] != null){
-        $tl21 = $file1.$file2.$file3.$data['202006X117X2797'];
-    }
-    elseif($data['202006X117X2797'] != null){
-        $tl21 = $data['202006X117X2797'];
-    }elseif($data['202006X117X2798'] != null){
-        $tl21 = $file1.$file2.$file3;
+$tl21 = generate_file_links($data['202006X117X2798'],$data['202006X117X2797']);
 
-}else{
-    $tl21 = "-";
-}
 if($data['202006X117X2883'] != null){
     $pic21 = $data['202006X117X2883'];
 }else{
@@ -1326,39 +622,8 @@ elseif($data['202006X118X2799'] == 1){
     $j22 = "Tidak terdapat alat transportasi";
 } 
 
-    $txt = $data['202006X118X2801'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X118X2800'] != null && $data['202006X118X2801'] != null){
-        $tl22 = $file1.$file2.$file3.$data['202006X118X2800'];
-    }
-    elseif($data['202006X118X2800'] != null){
-        $tl22 = $data['202006X118X2800'];
-    }elseif($data['202006X118X2801'] != null){
-        $tl22 = $file1.$file2.$file3;
+$tl22 = generate_file_links($data['202006X118X2801'],$data['202006X118X2800']);
 
-}else{
-    $tl22 = "-";
-}
 if($data['202006X118X2884'] != null){
     $pic22 = $data['202006X118X2884'];
 }else{
@@ -1377,39 +642,8 @@ if($data['202006X119X2802'] == 1){
     $j23 = "Distribusi AED dan kotak P3K belum sesuai dengan risiko di tempat kerja";
 }
 
-    $txt = $data['202006X119X2804'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X119X2803'] != null && $data['202006X119X2804'] != null){
-        $tl23 = $file1.$file2.$file3.$data['202006X119X2803'];
-    }
-    elseif($data['202006X119X2803'] != null){
-        $tl23 = $data['202006X119X2803'];
-    }elseif($data['202006X119X2804'] != null){
-        $tl23 = $file1.$file2.$file3;
+$tl23 = generate_file_links($data['202006X119X2804'],$data['202006X119X2803']);
 
-}else{
-    $tl23 = "-";
-}
 if($data['202006X119X2885'] != null){
     $pic23 = $data['202006X119X2885'];
 }else{
@@ -1428,39 +662,8 @@ if($data['202006X120X2805'] == 1){
     $j24 = "AED dan Kotak P3K sulit untuk diakses atau tidak tersedia";
 }
 
-    $txt = $data['202006X120X2807'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X120X2806'] != null && $data['202006X120X2807'] != null){
-        $tl24 = $file1.$file2.$file3.$data['202006X120X2806'];
-    }
-    elseif($data['202006X120X2806'] != null){
-        $tl24 = $data['202006X120X2806'];
-    }elseif($data['202006X120X2807'] != null){
-        $tl24 = $file1.$file2.$file3;
+$tl24 = generate_file_links($data['202006X120X2807'],$data['202006X120X2806']);
 
-}else{
-    $tl24 = "-";
-}
 if($data['202006X120X2886'] != null){
     $pic24 = $data['202006X120X2886'];
 }else{
@@ -1479,39 +682,8 @@ if($data['202006X121X2808'] == 1){
     $j25 = "Isi kotak P3K tersebut tidak sesuai dengan standar yang berlaku dan terpelihara dengan baik";
 }
 
-    $txt = $data['202006X121X2810'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X121X2809'] != null && $data['202006X121X2810'] != null){
-        $tl25 = $file1.$file2.$file3.$data['202006X121X2809'];
-    }
-    elseif($data['202006X121X2809'] != null){
-        $tl25 = $data['202006X121X2809'];
-    }elseif($data['202006X121X2810'] != null){
-        $tl25 = $file1.$file2.$file3;
+$tl25 = generate_file_links($data['202006X121X2810'],$data['202006X121X2809']);
 
-}else{
-    $tl25 = "-";
-}
 if($data['202006X121X2887'] != null){
     $pic25 = $data['202006X121X2887'];
 }else{
@@ -1530,39 +702,8 @@ if($data['202006X124X2854'] == 1){
     $j26 = "RS jejaring tidak dapat dijangkau dalam waktuyg telah diidentifikasi";
 }
 
-    $txt = $data['202006X124X2856'];//File
-    $replacements = [
-        "[" => "",
-        "]" => "",
-    ];
-    $tks = strtr($txt, $replacements);
-    $obj = json_decode($tks,true);
-	$arr = json_decode_multi($txt);
-	foreach($arr as $a) {
-	    if($a[0]->filename != null){
-	        $file1 = "1. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[0]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[1]->filename != null){
-	        $file2 = "2. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[1]->filename."'>".$a[1]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    if($a[2]->filename != null){
-	        $file3 = "3. <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$a[0]->filename."'>".$a[2]->title.".".$a[0]->ext."</a><br>";
-	    }
-	    
-        // $tl3 = $file1.$file2.$file3;
-    }
-    
-    if($data['202006X124X2855'] != null && $data['202006X124X2856'] != null){
-        $tl26 = $file1.$file2.$file3.$data['202006X124X2855'];
-    }
-    elseif($data['202006X124X2855'] != null){
-        $tl26 = $data['202006X124X2855'];
-    }elseif($data['202006X124X2856'] != null){
-        $tl26 = $file1.$file2.$file3;
+$tl26 = generate_file_links($data['202006X124X2856'],$data['202006X124X2855']);
 
-}else{
-    $tl26 = "-";
-}
 if($data['202006X124X2888'] != null){
     $pic26 = $data['202006X124X2888'];
 }else{

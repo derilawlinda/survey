@@ -1,8 +1,14 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+require APPPATH."/libraries/koolreport/core/autoload.php";
+use JsonRPC\CLient;
+
+
+
 class Merp extends CI_Controller
 {
+	
 
 	public function __construct()
 	{
@@ -15,7 +21,7 @@ class Merp extends CI_Controller
 	public function index()
 	{
 	    $post = $this->input->post();
-		if (!is_null($post['id'])) {
+		if (isset($post['id'])) {
 		  //  $id       = $post['id'];
 			$unit_id  = $post['unit_id'];
 			$nilai  = $post['nilai'];
@@ -135,9 +141,10 @@ class Merp extends CI_Controller
 	public function approval()
 	{
 		$post = $this->input->post();
-		$id = htmlspecialchars($post['id']);
+		
 		// cek apakah ada data yang dikirimkan atau tidak
-		if (!is_null($post['id'])) {
+		if (isset($post['id'])) {
+			$id = htmlspecialchars($post['id']);
 			$reason  = $post['reason'];
 			$status  = $post['status'];
 					
@@ -271,6 +278,139 @@ class Merp extends CI_Controller
 			echo $this->email->print_debugger();
 			die;
 		}
-    }
+	}
+	
+	public function chart(){
+
+		$query = $this->db->select('pertamin_survey.srvy_survey_202006.202006X122X2812, pertamin_survey.srvy_survey_202006.202006X122X2813, pertamin_survey.srvy_survey_202006.202006X122X2815, pertamin_survey.srvy_survey_202006.202006X122X2816, pertamin_survey.srvy_survey_202006.202006X122X2817, pertamin_survey.srvy_survey_202006.202006X122X2819, pertamin_survey.srvy_survey_202006.202006X122X2820, pertamin_survey.srvy_survey_202006.202006X122X2822, pertamin_survey.srvy_survey_202006.202006X122X2823, pertamin_survey.srvy_survey_202006.202006X122X2828, pertamin_survey.srvy_survey_202006.202006X122X2829, pertamin_survey.srvy_survey_202006.202006X122X2830, pertamin_survey.srvy_survey_202006.202006X122X2831, pertamin_survey.srvy_survey_202006.202006X122X2832, pertamin_survey.srvy_survey_202006.202006X122X2833, pertamin_survey.srvy_survey_202006.202006X122X2834, pertamin_survey.srvy_survey_202006.202006X122X2835, pertamin_survey.srvy_survey_202006.202006X122X2836, pertamin_survey.srvy_survey_202006.202006X122X2837, pertamin_survey.srvy_survey_202006.202006X122X2838, pertamin_survey.srvy_survey_202006.202006X122X2839, pertamin_survey.srvy_survey_202006.202006X122X2840, pertamin_survey.srvy_survey_202006.202006X122X2841, pertamin_survey.srvy_survey_202006.202006X122X2842, pertamin_survey.srvy_survey_202006.202006X122X2843, pertamin_survey.srvy_survey_202006.202006X122X2857, '.
+								   '(pertamin_survey.srvy_survey_202006.202006X122X2812 + pertamin_survey.srvy_survey_202006.202006X122X2813 + pertamin_survey.srvy_survey_202006.202006X122X2815 + pertamin_survey.srvy_survey_202006.202006X122X2816 + pertamin_survey.srvy_survey_202006.202006X122X2817 + pertamin_survey.srvy_survey_202006.202006X122X2819 + pertamin_survey.srvy_survey_202006.202006X122X2820 + pertamin_survey.srvy_survey_202006.202006X122X2822 + pertamin_survey.srvy_survey_202006.202006X122X2823 + pertamin_survey.srvy_survey_202006.202006X122X2828 + pertamin_survey.srvy_survey_202006.202006X122X2829 + pertamin_survey.srvy_survey_202006.202006X122X2830 + pertamin_survey.srvy_survey_202006.202006X122X2831 + pertamin_survey.srvy_survey_202006.202006X122X2832 + pertamin_survey.srvy_survey_202006.202006X122X2833) AS score_procedure,'.
+								   '(pertamin_survey.srvy_survey_202006.202006X122X2834 + pertamin_survey.srvy_survey_202006.202006X122X2835 + pertamin_survey.srvy_survey_202006.202006X122X2836 + pertamin_survey.srvy_survey_202006.202006X122X2837 + pertamin_survey.srvy_survey_202006.202006X122X2838) AS score_people,'.
+								   '(pertamin_survey.srvy_survey_202006.202006X122X2839 + pertamin_survey.srvy_survey_202006.202006X122X2840 + pertamin_survey.srvy_survey_202006.202006X122X2841 + pertamin_survey.srvy_survey_202006.202006X122X2842 + pertamin_survey.srvy_survey_202006.202006X122X2843 + pertamin_survey.srvy_survey_202006.202006X122X2857) AS score_plant')
+					->from('pertamin_survey.srvy_survey_202006')
+					->where('pertamin_survey.srvy_survey_202006.202006X125X2916',$this->session->userdata('unit'))
+					->get();
+		$question_fields = array(
+			'procedure' => [12, 13, 15, 16, 17, 19, 20, 22, 23, 28, 29, 30 ,31, 32, 33 ],
+			'people' => [34, 35, 36, 37, 38],
+			'plant' => [ 39, 40, 41, 42, 43, 57]
+		);
+		$question_max_scores  = array(
+			'procedure' => [10, 30, 10, 15, 25, 10, 20, 15, 20, 20, 15, 15, 15, 10, 20 ],
+			'people' => [10, 35, 15, 35, 5],
+			'plant' => [ 30, 30, 10, 5, 5, 20]
+		);
+		if ($query->num_rows() > 0) {
+			$result = $query->result_array();
+			$data['merp_scores'][0] = array (
+				'category' => 'Procedure',
+				'score' => $result[0]['score_procedure'],
+				'max_score' => 250 );
+			$data['merp_scores'][1] = array (
+				'category' => 'People',
+				'score' => $result[0]['score_people'],
+				'max_score' => 100 );
+			$data['merp_scores'][2] = array (
+				'category' => 'Plant',
+				'score' => $result[0]['score_plant'],
+				'max_score' => 100 );
+			$total = array_reduce($data['merp_scores'], function($carry, $item) {
+				foreach($item as $k => $v)
+					if(is_numeric($v)){
+						$carry[$k] = $v + ($carry[$k] ?? 0);
+					}
+			
+				return $carry;
+			}, []);
+			$data['merp_scores'][3] = array (
+				'category' => 'Total',
+				'score' => $total['score'],
+				'max_score' => $total['max_score']);	
+
+			$question_number = 0;
+			$data['procedure_scores'] = array();
+			for ($i = 0; $i < count($question_fields['procedure']); $i++) {
+				$question_number++;
+				$data['procedure_scores'][$i] = array (
+					'category' => $question_number,
+					'score' => intval($result[0]['202006X122X28'.$question_fields['procedure'][$i]]),
+					'max_score' => intval($question_max_scores['procedure'][$i]));
+			};
+			$data['people_scores'] = array();
+			for ($j = 0; $j < count($question_fields['people']); $j++) {
+				$question_number++;
+				$data['people_scores'][$j] = array (
+					'category' => $question_number,
+					'score' => intval($result[0]['202006X122X28'.$question_fields['people'][$j]]),
+					'max_score' => intval($question_max_scores['people'][$j]));
+			};
+			$data['plant_scores'] = array();
+			for ($k = 0; $k < count($question_fields['plant']); $k++) {
+				$question_number++;
+				$data['plant_scores'][$k] = array (
+					'category' => $question_number,
+					'score' => intval($result[0]['202006X122X28'.$question_fields['plant'][$k]]),
+					'max_score' => intval($question_max_scores['plant'][$k]));
+			};
+		};
+		
+		// $client = new Client('https://survey.hsse.online/index.php/admin/remotecontrol');
+		// $sSessionKey = $client->execute('get_session_key', ['username' => 'mimin', 'password' => '@123456']);
+		$questions_procedure = 
+		[
+			["1","Apakah tersedia manajemen tanggap darurat medis yang terkait dengan operasi dan aktivitas perusahaan?"],
+			["2","Apakah tersedia prosedur mengenai rencana tanggap darurat medis berdasarkan tingkat risiko serta sesuai dengan ketentuan regulasi yang ada?"],
+			["3","Apakah terdapat rencana tanggap darurat medis (Medical Emergency Respon Plan/MERP) yang diintegrasikan ke dalam prosedur tanggap darurat (Emergency Respon Plan/ERP) Unit Operasi/Anak Perusahaan?"],
+			["4","Apakah terdapat rencana tanggap darurat medis yang dikomunikasikan kepada seluruh stakeholder terkait secara efektif?"],
+			["5","Apakah rencana tanggap darurat medis dipraktekkan secara teratur dengan latihan (drill) dan di evaluasi?"],
+			["6","Apakah terdapat proses untuk memastikan bahwa pelajaran (lesson learned) ditindaklanjuti sebagai hasil evaluasi latihan (drill) atau insiden?"],
+			["7","Apakah waktu respon yang sesuai telah ditetapkan untuk pertolongan pertama, perawatan medis darurat dan evakuasi?"],
+			["8","Apakah terdapat prosedur untuk menentukan kecukupan klinik dan sarananya (termasuk AED) dalam penanganan tanggap darurat medis sesuai dengan tingkat risiko di lokasi?"],
+			["9","Apakah semua stakeholder terkait telah mendapatkan informasi perihal nomor kontak darurat untuk bantuan medis di setiap tempat kerja dan perjalanan bisnis?"],
+			["10","Apakah terdapat prosedur pelatihan Pertolongan Pertama Pada Kecelakaan/P3K dengan pelatihan dilaksanakan secara berkala.(Pelatihan dengan sertifikasi Kemenaker diperlukan bagi pekerja yang akan ditunjuk sebagai First Aider)."],
+			["11","Apakah terdapat prosedur untuk memastikan klinik, sarana, ambulan, isi dari kotak P3K tersebut telah sesuai dengan standar yang berlaku dan terpelihara dengan baik. (Lihat Pedoman No. A-002/S00000/2017-S9 Rev.0 tentang Tanggap Darurat Medis, Corporate HSSE)?"],
+			["11a","Apakah terdapat prosedur untuk memastikan sarana dan peralatan tanggap darurat medis diperiksa dan dipelihara secara berkala?"],
+			["13","Apakah terdapat prosedur untuk meminta bantuan organisasi eksternal dalam menangani keadaan darurat?"],
+			["14","Apakah terdapat perjanjian kerjasama dengan organisasi lain/eksternal untuk memberikan bantuan personil dan peralatan jika terjadi keadaan darurat?"],
+			["15","Apakah dilakukan pengujian dan drill secara periodik sesuai dengan perjanjian kerjasama tersebut dan juga sistem tanggap darurat dari eksternal?"]
+		];
+
+		$questions_people = 
+		[
+			["1","Apakah terdapat First Aider/FA (tersertifikasi Kemenaker) yang ditunjuk perusahaan untuk memenuhi waktu respon yang telah ditetapkan untuk pertolongan pertama (4 menit)?"],
+			["2","Apakah distribusi pekerja yang terlatih First Aid sudah sesuai dengan risiko di lokasi kerja?"],
+			["3","Apakah tersedia dokter/paramedis untuk melakukan perawatan medis darurat dan evakuasi?"],
+			["4","Apakah Dokter dan paramedis telah memiliki sertifikat ACLS/ATLS (bagi dokter) dan BCLS/BTLS (bagi paramedic) yang masih valid?"],
+			["5","Apakah terdapat pekerja yang ditunjuk untuk memelihara dan memastikan semua sarana (termasuk AED), isi kotak P3K terpelihara sepanjang waktu?"]
+		];
+		
+		$questions_plant = 
+		[
+			["1","Apakah tersedia klinik/pos P3K, dan sarana (termasuk AED), yang sesuai dengan standar (risk based) dan terpelihara dengan baik. (Pedoman No. A-002/S00000/2017-S9 Rev.0 tentang Tanggap Darurat Medis, Corporate HSSE)?"],
+			["2","Apakah tersedia alat transportasi untuk evakuasi medis (ambulan/kapal/helicopter) yang sesuai standard dan terpelihara dengan baik (Kepmenkes No. 143/Menkes-kesos/SK/II/2001, tentang Standarisasi Kendaraan Pelayanan Medik?"],
+			["3","Apakah distribusi AED dan kotak P3K sudah sesuai dengan risiko di tempat kerja?"],
+			["4","Apakah AED dan Kotak P3K terlihat dengan baik dan mudah diakses?"],
+			["5","Apakah isi kotak P3K tersebut telah sesuai dengan standar yang berlaku dan terpelihara dengan baik.(Permenaker No 15 tahun 2008)?"],
+			["6","Apakah RS Jejaring untuk Medevac dapat dijangkau dalam waktu 4 jam?"]
+		];
+		
+		
+		$this->db->select('merp.*,user_unit.unit');    
+		$this->db->from('merp');
+		$this->db->join('user_unit', 'merp.unit_id = user_unit.id');
+		
+		$data['merp'] = $this->db->group_by('unit_id')->get()->result_array();
+		$data['approve'] = $this->db->get_where('merp', ['id' => $this->input->post('id')])->row_array();
+		$data['unit'] = $this->db->get_where('user_unit', ['id' => $this->session->userdata('unit')])->row_array();
+		
+		$data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
+		$data['userapp'] = $this->db->get_where('user', ['unit' => $this->session->userdata('unit')])->row_array();
+		$data['title_page'] = "MERP Chart";
+		$this->load->view('templates/sitemain/deskapp-header', $data);
+		$this->load->view('templates/sitemain/deskapp-sidebar', $data);
+		$this->load->view('templates/sitemain/deskapp-topbar', $data);
+		$this->load->view('merp/chart');
+		$this->load->view('templates/sitemain/deskapp-footer');
+
+	}
 
 }
