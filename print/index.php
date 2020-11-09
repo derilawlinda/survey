@@ -21,7 +21,7 @@ function generate_file_links($file_link_json=null,$tindak_lanjut=null){
         $obj = json_decode($tks,true);
         $arr = json_decode_multi($file_link_json);
         for ($x = 0; $x < count($arr[0]); $x++) {
-            $file_links .= ($x+1)."."." <a target='_blank' href='https://survey.pertamina-pdc.network/dashboard/files/".$arr[0][$x]->filename."'>".$arr[0][$x]->title.".".$arr[0][$x]->ext."</a><br>";
+            $file_links .= ($x+1)."."." <a target='_blank' href='merp/openFile/".$arr[0][$x]->filename."/".trim($arr[0][$x]->ext)."/".rawurlencode(str_replace(".","",$arr[0][$x]->title))."'>".$arr[0][$x]->title.".".$arr[0][$x]->ext."</a><br>";
         }
     }
     if($tindak_lanjut != null){

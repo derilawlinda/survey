@@ -1,4 +1,8 @@
+<?php
+use \koolreport\widgets\google\PieChart;
+use \koolreport\widgets\google\ColumnChart;
 
+?>
 <!-- DataTales Example -->
 <div class="container mt-3">
 				<!-- Simple Datatable start -->
@@ -6,8 +10,58 @@
             		<div class="card-header py-3 d-flex justify-content-between pd-20">
             		  	<h6 class="m-0 font-weight-bold text-primary"><?= $title_page; ?></h6>
             		  	<!--<a href="https://survey.pertamina-pdc.network/index.php/202006?lang=id" target="_blank" class="btn-sm btn-primary">Jawab Survey</a>-->
-            		</div>
+					</div>
 					<div class="card-body pb-20">
+
+					<?php if($is_admin) { 
+							echo '<div style="margin-bottom:20px;">';
+
+							PieChart::create(array(
+								"title"=>"Persentase Resiko Unit",
+								"dataSource"=>$pie_chart,
+								"columns"=>array(
+									"category",
+									"jumlah"=>array(
+										"type"=>"number"
+									)
+								),
+								"colorScheme"=>array(
+									"#00b630",
+									"#7cff04",
+									"#ffec04",
+									"#ff8f04",
+									"#ff0000"
+								),
+								"options"=>array(
+									"is3D"=>true
+								)
+							));
+							echo '</div>';
+
+							echo '<div style="margin-bottom:20px;">';
+
+							ColumnChart::create(array(
+										"title"=>"Pencapaian Unit",
+										"dataSource"=>$column_chart,
+										"columns"=>array(
+											"category",
+											"nilai"=>array(
+												"label"=>"Nilai",
+												"type"=>"number",
+												"style"=>function($row){
+													return "color:".$row["color"];
+												}
+											)
+										),
+										"options"=>array(
+											"legend"=>array("position"=>"none"))
+										
+									));
+							echo '</div>';
+					
+						};
+					?>
+
 						<table class="data-table table stripe hover nowrap">
 							<thead>
 								<tr>
@@ -46,6 +100,7 @@
 											</a>
 											<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
 												<a class="dropdown-item tampilModalUbah" href="#" data-id="<?= $r['id']; ?>" data-url="<?= base_url(); ?>" data-toggle="modal" data-target="#formModal"><i class="dw dw-edit"></i> Submit</a>
+												<a class="dropdown-item tampilModalUbah" target="_blank" href="<?= base_url()."merp/chart?kode=".$r["id"]; ?>" ><i class="dw dw-bar-chart" ></i> Chart</a>
 												<!--<a class="dropdown-item" href="#"><i class="dw dw-edit2"></i> Edit</a>-->
 												<!--<a class="dropdown-item" href="#"><i class="dw dw-delete-3"></i> Delete</a>-->
 											</div>
